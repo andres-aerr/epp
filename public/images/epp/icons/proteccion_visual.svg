@@ -1,0 +1,6 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" fill="#E5E7EB"/>
+  <path d="M70 140C70 140 110 120 150 120C190 120 230 140 230 140C230 140 190 160 150 160C110 160 70 140 70 140Z" fill="#4B5563"/>
+  <circle cx="150" cy="140" r="20" fill="#9CA3AF"/>
+  <text x="150" y="280" text-anchor="middle" font-family="system-ui" font-size="14" fill="#6B7280">Protección Visual</text>
+</svg> 

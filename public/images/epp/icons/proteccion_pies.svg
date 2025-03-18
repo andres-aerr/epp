@@ -1,0 +1,7 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" fill="#E5E7EB"/>
+  <path d="M100 150C100 120 120 100 150 100C180 100 200 120 200 150V170C200 180 190 190 180 190H120C110 190 100 180 100 170V150Z" fill="#4B5563"/>
+  <path d="M100 170H200" stroke="#9CA3AF" stroke-width="4"/>
+  <path d="M120 190V210H180V190" stroke="#4B5563" stroke-width="4"/>
+  <text x="150" y="280" text-anchor="middle" font-family="system-ui" font-size="14" fill="#6B7280">Protección para Pies</text>
+</svg> 

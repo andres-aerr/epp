@@ -1,0 +1,6 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" fill="#E5E7EB"/>
+  <path d="M150 60C105 60 70 95 70 140C70 170 90 195 120 205L130 250H170L180 205C210 195 230 170 230 140C230 95 195 60 150 60Z" fill="#4B5563"/>
+  <path d="M120 205C150 215 150 215 180 205" stroke="#9CA3AF" stroke-width="4"/>
+  <text x="150" y="280" text-anchor="middle" font-family="system-ui" font-size="14" fill="#6B7280">Protección para Cabeza</text>
+</svg> 

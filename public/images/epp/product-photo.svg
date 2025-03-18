@@ -1,0 +1,22 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" fill="#E5E7EB"/>
+  
+  <!-- Cuerpo de la cámara -->
+  <rect x="60" y="100" width="180" height="120" rx="10" fill="#4B5563"/>
+  
+  <!-- Flash -->
+  <rect x="80" y="80" width="40" height="20" rx="5" fill="#4B5563"/>
+  
+  <!-- Lente -->
+  <circle cx="150" cy="160" r="40" fill="#6B7280"/>
+  <circle cx="150" cy="160" r="30" fill="#9CA3AF"/>
+  <circle cx="150" cy="160" r="20" fill="#6B7280"/>
+  
+  <!-- Botón -->
+  <rect x="200" y="110" width="20" height="10" rx="5" fill="#9CA3AF"/>
+  
+  <!-- Visor -->
+  <rect x="190" y="85" width="30" height="15" rx="2" fill="#6B7280"/>
+  
+  <text x="150" y="260" text-anchor="middle" font-family="system-ui" font-size="14" fill="#6B7280">Imagen del producto</text>
+</svg> 

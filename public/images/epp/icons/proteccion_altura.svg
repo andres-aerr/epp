@@ -1,0 +1,8 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" fill="#E5E7EB"/>
+  <path d="M150 80L170 100V140H130V100L150 80Z" fill="#4B5563"/>
+  <path d="M130 160H170L180 200H120L130 160Z" fill="#4B5563"/>
+  <path d="M140 140V160M160 140V160" stroke="#9CA3AF" stroke-width="2"/>
+  <path d="M120 200L100 220M180 200L200 220" stroke="#4B5563" stroke-width="4"/>
+  <text x="150" y="280" text-anchor="middle" font-family="system-ui" font-size="14" fill="#6B7280">Protección Contra Caídas</text>
+</svg> 

@@ -1,0 +1,8 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" fill="#E5E7EB"/>
+  <path d="M120 150C120 120 130 100 150 100C170 100 180 120 180 150" stroke="#4B5563" stroke-width="8"/>
+  <path d="M110 140C110 140 100 140 100 150C100 160 110 160 110 160M190 140C190 140 200 140 200 150C200 160 190 160 190 160" fill="#4B5563"/>
+  <circle cx="110" cy="150" r="15" fill="#9CA3AF"/>
+  <circle cx="190" cy="150" r="15" fill="#9CA3AF"/>
+  <text x="150" y="280" text-anchor="middle" font-family="system-ui" font-size="14" fill="#6B7280">Protección Auditiva</text>
+</svg> 
