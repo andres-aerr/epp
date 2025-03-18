@@ -2,128 +2,123 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
-  // Limpiar cualquier sesión previa para evitar problemas
-  React.useEffect(() => {
-    sessionStorage.clear();
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
-    // Lógica de autenticación simplificada que no cause bucles
-    try {
-      if (email === 'admin@epp.com' && password === '123456') {
-        console.log('Iniciando sesión como administrador');
-        sessionStorage.setItem('userType', 'admin');
-        navigate('/admin');
-        return;
-      } 
-      
-      if (email === 'bodega@epp.com' && password === '123456') {
-        console.log('Iniciando sesión como bodega');
-        sessionStorage.setItem('userType', 'bodega');
-        navigate('/bodega');
-        return;
-      } 
-      
-      if (email === 'despacho@epp.com' && password === '123456') {
-        console.log('Iniciando sesión como despacho');
-        sessionStorage.setItem('userType', 'despacho');
-        navigate('/despacho');
-        return;
-      } 
-      
-      if (email === 'usuario@epp.com' && password === '123456') {
-        console.log('Iniciando sesión como usuario regular');
-        sessionStorage.setItem('userType', 'user');
-        navigate('/dashboard');
-        return;
-      }
-      
-      // Credenciales inválidas
-      setError('Credenciales inválidas. Por favor intente nuevamente.');
-    } catch (error) {
-      console.error('Error al iniciar sesión:', error);
-      setError('Ocurrió un error al iniciar sesión.');
+
+    // Asegurarnos de que cualquier sesión anterior está limpia
+    sessionStorage.clear();
+
+    // Lógica de autenticación simplificada
+    if (email === 'admin@epp.com' && password === 'admin') {
+      // Administrador
+      sessionStorage.setItem('userType', 'admin');
+      navigate('/admin');
+    } else if (email === 'bodega@epp.com' && password === 'bodega') {
+      // Bodega
+      sessionStorage.setItem('userType', 'bodega');
+      navigate('/bodega');
+    } else if (email === 'despacho@epp.com' && password === 'despacho') {
+      // Despachador
+      sessionStorage.setItem('userType', 'despacho');
+      navigate('/despacho');
+    } else if (email === 'usuario@epp.com' && password === 'usuario' || (email && password)) {
+      // Usuario normal (o cualquier otra combinación válida)
+      sessionStorage.setItem('userType', 'user');
+      navigate('/dashboard');
+    } else {
+      setError('Credenciales inválidas');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            EPP Manager
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Inicie sesión para continuar
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          EPP Manager
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Inicia sesión para continuar
+        </p>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="sr-only">
-                Email
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Correo electrónico
               </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              <div className="mt-1">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
             </div>
+
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Contraseña
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Iniciar sesión
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">
+                  Credenciales de prueba:
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-3 text-sm text-gray-500">
+              <div>Admin: admin@epp.com / admin</div>
+              <div>Bodega: bodega@epp.com / bodega</div>
+              <div>Despacho: despacho@epp.com / despacho</div>
+              <div>Usuario: usuario@epp.com / usuario</div>
             </div>
           </div>
-
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
-          )}
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Iniciar Sesión
-            </button>
-          </div>
-          
-          <div className="text-sm text-center">
-            <p className="text-gray-500">Credenciales de prueba:</p>
-            <ul className="mt-2 space-y-1">
-              <li>Admin: admin@epp.com / 123456</li>
-              <li>Usuario: usuario@epp.com / 123456</li>
-              <li>Bodega: bodega@epp.com / 123456</li>
-              <li>Despacho: despacho@epp.com / 123456</li>
-            </ul>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   );
