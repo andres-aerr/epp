@@ -1,19 +1,16 @@
 import React from 'react';
-import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
+import { Outlet, useLocation, Link } from 'react-router-dom';
 import {
   HomeIcon,
   UsersIcon,
   ClipboardDocumentListIcon,
   ChartBarIcon,
-  CubeIcon,
   ShoppingBagIcon,
   InboxIcon,
   UserCircleIcon
 } from '@heroicons/react/24/outline';
 
-// En producción, esto vendría de un contexto de autenticación
-const isAdmin = true; // Simulamos que el usuario es admin
-
+// Navegación para administradores
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: HomeIcon },
   { name: 'Usuarios', href: '/admin/users', icon: UsersIcon },
@@ -25,10 +22,10 @@ const navigation = [
 
 const AdminLayout: React.FC = () => {
   const location = useLocation();
-
-  if (!isAdmin) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  
+  // IMPORTANTE: Por ahora, suponemos que el usuario es administrador
+  // para evitar bucles infinitos. En una implementación real,
+  // aquí verificaríamos con un contexto de autenticación.
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -96,6 +93,9 @@ const AdminLayout: React.FC = () => {
                 <Link
                   to="/login"
                   className="ml-4 flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  onClick={() => {
+                    sessionStorage.clear();
+                  }}
                 >
                   Cerrar Sesión
                 </Link>

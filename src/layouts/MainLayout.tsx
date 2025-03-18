@@ -34,17 +34,15 @@ const despachoNavigation = [
 const MainLayout: React.FC = () => {
   const location = useLocation();
   
-  // Determinar qué navegación mostrar basado en la ruta actual
-  const getNavigation = () => {
-    if (location.pathname.startsWith('/bodega')) {
-      return bodegaNavigation;
-    } else if (location.pathname.startsWith('/despacho')) {
-      return despachoNavigation;
-    }
-    return userNavigation;
-  };
-
-  const navigation = getNavigation();
+  // Determinar qué navegación mostrar basado solo en la ruta actual
+  // para evitar problemas de renderizado
+  let navigation = userNavigation; // Por defecto
+  
+  if (location.pathname.startsWith('/bodega')) {
+    navigation = bodegaNavigation;
+  } else if (location.pathname.startsWith('/despacho')) {
+    navigation = despachoNavigation;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -100,6 +98,10 @@ const MainLayout: React.FC = () => {
                 <Link
                   to="/login"
                   className="text-gray-600 hover:text-gray-900"
+                  onClick={() => {
+                    // Versión simplificada para evitar bucles
+                    sessionStorage.clear();
+                  }}
                 >
                   Cerrar Sesión
                 </Link>

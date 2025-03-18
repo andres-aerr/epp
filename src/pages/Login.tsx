@@ -11,19 +11,25 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    // Aquí iría la lógica de autenticación real
-    // Por ahora, simulamos un login básico
+    // Asegurarnos de que cualquier sesión anterior está limpia
+    sessionStorage.clear();
+
+    // Lógica de autenticación simplificada
     if (email === 'admin@epp.com' && password === 'admin') {
-      // Simular login de administrador
-      navigate('/admin/dashboard');
+      // Administrador
+      sessionStorage.setItem('userType', 'admin');
+      navigate('/admin');
     } else if (email === 'bodega@epp.com' && password === 'bodega') {
-      // Simular login de bodega
-      navigate('/bodega/solicitudes');
+      // Bodega
+      sessionStorage.setItem('userType', 'bodega');
+      navigate('/bodega');
     } else if (email === 'despacho@epp.com' && password === 'despacho') {
-      // Simular login de despachador
-      navigate('/despacho/entregas');
-    } else if (email && password) {
-      // Simular login de usuario normal
+      // Despachador
+      sessionStorage.setItem('userType', 'despacho');
+      navigate('/despacho');
+    } else if (email === 'usuario@epp.com' && password === 'usuario' || (email && password)) {
+      // Usuario normal (o cualquier otra combinación válida)
+      sessionStorage.setItem('userType', 'user');
       navigate('/dashboard');
     } else {
       setError('Credenciales inválidas');
