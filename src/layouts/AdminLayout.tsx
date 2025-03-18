@@ -16,6 +16,7 @@ const navigation = [
   { name: 'Usuarios', href: '/admin/users', icon: UsersIcon },
   { name: 'Inventario', href: '/admin/inventory', icon: InboxIcon },
   { name: 'Catálogo EPP', href: '/admin/catalogo', icon: ShoppingBagIcon },
+  { name: 'EPPs por Rol', href: '/admin/epps-por-rol', icon: ClipboardDocumentListIcon },
   { name: 'Solicitudes', href: '/admin/requests', icon: ClipboardDocumentListIcon },
   { name: 'Reportes', href: '/admin/reports', icon: ChartBarIcon },
 ];

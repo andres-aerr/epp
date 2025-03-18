@@ -5,17 +5,20 @@ import {
   BriefcaseIcon,
   UserGroupIcon,
   CalendarIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
-import { Usuario } from '../../types/epp';
+import { Usuario, cargosDemo, condicionesDemoTrabajo } from '../../types/epp';
 import { usuarios } from '../../data/usuarios';
 
 interface InformacionLaboral {
   departamento: string;
   area: string;
   cargo: string;
+  cargoId: string;
   supervisor: string;
   fechaIngreso: string;
   estado: 'activo' | 'inactivo';
+  condicionesTrabajo: string[];
 }
 
 const EditarUsuario: React.FC = () => {
@@ -26,9 +29,11 @@ const EditarUsuario: React.FC = () => {
     departamento: '',
     area: '',
     cargo: '',
+    cargoId: '',
     supervisor: '',
     fechaIngreso: '',
-    estado: 'activo'
+    estado: 'activo',
+    condicionesTrabajo: []
   });
 
   const departamentos = [
@@ -49,16 +54,6 @@ const EditarUsuario: React.FC = () => {
     Dirección: ['Gerencia', 'Administración']
   };
 
-  const cargos = {
-    Construcción: ['Operador de Maquinaria', 'Operador de Grúa'],
-    Supervisión: ['Supervisor de Obra', 'Supervisor de Seguridad'],
-    Gestión: ['Jefe de Seguridad', 'Jefe de Logística', 'Gerente de Operaciones'],
-    Mecánica: ['Técnico Mecánico'],
-    Eléctrica: ['Técnico Electricista'],
-    Logística: ['Coordinador de Almacén'],
-    Gerencia: ['Gerente de Operaciones']
-  };
-
   const supervisores = [
     'Carlos Rodríguez',
     'Ana Martínez',
@@ -67,6 +62,7 @@ const EditarUsuario: React.FC = () => {
     'Miguel Torres'
   ];
 
+  // Cargar datos del usuario
   useEffect(() => {
     const user = usuarios.find(u => u.id === userId);
     if (user) {
@@ -75,12 +71,48 @@ const EditarUsuario: React.FC = () => {
         departamento: user.departamento,
         area: user.area,
         cargo: user.cargo,
+        cargoId: user.cargoId || '',
         supervisor: user.supervisor.nombre,
         fechaIngreso: user.fechaIngreso,
-        estado: user.estado
+        estado: user.estado,
+        condicionesTrabajo: user.condicionesTrabajo || []
       });
     }
   }, [userId]);
+
+  // Manejar cambio de cargo desde el catálogo
+  const handleCargoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const cargoId = e.target.value;
+    if (cargoId) {
+      const cargoSeleccionado = cargosDemo.find(c => c.id === cargoId);
+      if (cargoSeleccionado) {
+        setInformacionLaboral({
+          ...informacionLaboral,
+          cargoId,
+          cargo: cargoSeleccionado.nombre
+        });
+      }
+    } else {
+      setInformacionLaboral({
+        ...informacionLaboral,
+        cargoId: '',
+      });
+    }
+  };
+
+  // Manejar cambio en condiciones de trabajo
+  const handleCondicionChange = (condicionId: string) => {
+    setInformacionLaboral(prevState => {
+      const condicionesActualizadas = prevState.condicionesTrabajo.includes(condicionId)
+        ? prevState.condicionesTrabajo.filter(id => id !== condicionId)
+        : [...prevState.condicionesTrabajo, condicionId];
+      
+      return {
+        ...prevState,
+        condicionesTrabajo: condicionesActualizadas
+      };
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,7 +155,6 @@ const EditarUsuario: React.FC = () => {
                     ...informacionLaboral,
                     departamento: newDepartamento,
                     area: areas[newDepartamento as keyof typeof areas][0],
-                    cargo: ''
                   });
                 }}
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
@@ -149,7 +180,6 @@ const EditarUsuario: React.FC = () => {
                   setInformacionLaboral({
                     ...informacionLaboral,
                     area: newArea,
-                    cargo: cargos[newArea as keyof typeof cargos][0]
                   });
                 }}
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
@@ -160,7 +190,7 @@ const EditarUsuario: React.FC = () => {
               </select>
             </div>
 
-            {/* Cargo */}
+            {/* Cargo desde catálogo */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <div className="flex items-center">
@@ -169,12 +199,21 @@ const EditarUsuario: React.FC = () => {
                 </div>
               </label>
               <select
-                value={informacionLaboral.cargo}
-                onChange={(e) => setInformacionLaboral({ ...informacionLaboral, cargo: e.target.value })}
+                value={informacionLaboral.cargoId}
+                onChange={handleCargoChange}
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
               >
-                {cargos[informacionLaboral.area as keyof typeof cargos]?.map((cargo) => (
-                  <option key={cargo} value={cargo}>{cargo}</option>
+                <option value="">Seleccione un cargo</option>
+                {cargosDemo.filter(cargo => cargo.area.toLowerCase().includes(informacionLaboral.area.toLowerCase()) || 
+                                         cargo.area.toLowerCase().includes(informacionLaboral.departamento.toLowerCase()))
+                           .map((cargo) => (
+                  <option key={cargo.id} value={cargo.id}>{cargo.nombre} - {cargo.area}</option>
+                ))}
+                {/* Mostrar todos los cargos que no coinciden con el filtro al final */}
+                {cargosDemo.filter(cargo => !cargo.area.toLowerCase().includes(informacionLaboral.area.toLowerCase()) && 
+                                        !cargo.area.toLowerCase().includes(informacionLaboral.departamento.toLowerCase()))
+                           .map((cargo) => (
+                  <option key={cargo.id} value={cargo.id}>{cargo.nombre} - {cargo.area}</option>
                 ))}
               </select>
             </div>
@@ -230,6 +269,42 @@ const EditarUsuario: React.FC = () => {
                 <option value="activo">Activo</option>
                 <option value="inactivo">Inactivo</option>
               </select>
+            </div>
+          </div>
+          
+          {/* Condiciones de trabajo */}
+          <div className="mt-8">
+            <label className="block text-sm font-medium text-gray-700 mb-4">
+              <div className="flex items-center">
+                <ShieldCheckIcon className="h-5 w-5 text-gray-400 mr-2" />
+                Condiciones de Trabajo
+              </div>
+            </label>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {condicionesDemoTrabajo.map((condicion) => (
+                <div key={condicion.id} className="relative flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id={`condicion-${condicion.id}`}
+                      name={`condicion-${condicion.id}`}
+                      type="checkbox"
+                      checked={informacionLaboral.condicionesTrabajo.includes(condicion.id)}
+                      onChange={() => handleCondicionChange(condicion.id)}
+                      className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label htmlFor={`condicion-${condicion.id}`} className="font-medium text-gray-700">
+                      {condicion.nombre}
+                    </label>
+                    <p className="text-gray-500">{condicion.descripcion}</p>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mt-1">
+                      {condicion.tipo}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

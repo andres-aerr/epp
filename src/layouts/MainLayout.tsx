@@ -14,6 +14,7 @@ import {
 const userNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Catálogo EPP', href: '/catalogo', icon: ShoppingBagIcon },
+  { name: 'EPPs Recomendados', href: '/epps-recomendados', icon: CheckCircleIcon },
   { name: 'Seguimiento', href: '/solicitudes/seguimiento', icon: ClipboardDocumentListIcon },
   { name: 'Confirmar Recepción', href: '/solicitudes/confirmar', icon: CheckCircleIcon },
   { name: 'Mi Perfil', href: '/perfil', icon: UserIcon },
