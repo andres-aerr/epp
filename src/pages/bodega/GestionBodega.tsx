@@ -17,7 +17,7 @@ interface SolicitudBodega {
   usuario: string;
   departamento: string;
   fecha: string;
-  estado: 'pendiente' | 'aprobada' | 'rechazada' | 'en_despacho';
+  estado: 'pendiente' | 'aprobada' | 'rechazada' | 'en_despacho' | 'entregado_a_despacho' | 'recibido_por_despacho';
   items: {
     id: string;
     nombre: string;
@@ -26,6 +26,9 @@ interface SolicitudBodega {
   }[];
   comentarios?: string;
   despachadorAsignado?: string;
+  fechaEntregaDespacho?: string;
+  fechaRecepcionDespacho?: string;
+  firmaEntrega?: string;
 }
 
 // Datos de ejemplo
@@ -75,12 +78,15 @@ const GestionBodega: React.FC = () => {
   const handleAprobarSolicitud = () => {
     if (!solicitudSeleccionada || !despachadorSeleccionado) return;
 
+    const fechaActual = new Date().toISOString().split('T')[0];
+    
     setSolicitudes(solicitudes.map(sol => 
       sol.id === solicitudSeleccionada.id
         ? {
             ...sol,
-            estado: 'aprobada',
-            despachadorAsignado: despachadorSeleccionado
+            estado: 'entregado_a_despacho',
+            despachadorAsignado: despachadorSeleccionado,
+            fechaEntregaDespacho: fechaActual
           }
         : sol
     ));
@@ -111,13 +117,13 @@ const GestionBodega: React.FC = () => {
       {/* Lista de solicitudes */}
       <div className="w-1/3 border-r border-gray-200 overflow-y-auto">
         <div className="px-4 py-5 sm:px-6">
-          <h2 className="text-lg font-medium text-gray-900">Solicitudes Pendientes</h2>
+          <h2 className="text-lg font-medium text-gray-900">Solicitudes</h2>
           <p className="mt-1 text-sm text-gray-500">
-            Gestión de solicitudes de EPP pendientes
+            Gestión de solicitudes de EPP
           </p>
         </div>
         <ul role="list" className="divide-y divide-gray-200">
-          {solicitudes.filter(s => s.estado === 'pendiente').map((solicitud) => (
+          {solicitudes.filter(s => ['pendiente', 'entregado_a_despacho'].includes(s.estado)).map((solicitud) => (
             <li
               key={solicitud.id}
               className={`px-4 py-4 hover:bg-gray-50 cursor-pointer ${
@@ -133,6 +139,11 @@ const GestionBodega: React.FC = () => {
                   <div className="ml-3">
                     <p className="text-sm font-medium text-gray-900">{solicitud.usuario}</p>
                     <p className="text-sm text-gray-500">{solicitud.departamento}</p>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      solicitud.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
+                    }`}>
+                      {solicitud.estado === 'pendiente' ? 'Pendiente' : 'Entregado a Despacho'}
+                    </span>
                   </div>
                 </div>
                 <div className="text-sm text-gray-500">{solicitud.fecha}</div>

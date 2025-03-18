@@ -16,7 +16,6 @@ const navigation = [
   { name: 'Usuarios', href: '/admin/users', icon: UsersIcon },
   { name: 'Inventario', href: '/admin/inventory', icon: InboxIcon },
   { name: 'Catálogo EPP', href: '/admin/catalogo', icon: ShoppingBagIcon },
-  { name: 'EPPs por Rol', href: '/admin/epps-por-rol', icon: ClipboardDocumentListIcon },
   { name: 'Solicitudes', href: '/admin/requests', icon: ClipboardDocumentListIcon },
   { name: 'Reportes', href: '/admin/reports', icon: ChartBarIcon },
 ];
@@ -32,12 +31,12 @@ const AdminLayout: React.FC = () => {
     <div className="min-h-screen bg-gray-100">
       <div className="flex">
         {/* Sidebar */}
-        <div className="hidden md:flex md:w-64 md:flex-col">
-          <div className="flex flex-col flex-grow pt-5 bg-white overflow-y-auto">
-            <div className="flex items-center flex-shrink-0 px-4">
+        <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
+          <div className="flex flex-col flex-grow border-r border-gray-200 bg-white">
+            <div className="flex items-center flex-shrink-0 px-4 h-16">
               <h1 className="text-xl font-semibold text-gray-900">EPP Manager</h1>
             </div>
-            <div className="mt-5 flex-grow flex flex-col">
+            <div className="flex-1 flex flex-col overflow-y-auto">
               <nav className="flex-1 px-2 pb-4 space-y-1">
                 {navigation.map((item) => {
                   const isActive = location.pathname === item.href;
@@ -69,7 +68,7 @@ const AdminLayout: React.FC = () => {
         </div>
 
         {/* Main content */}
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col flex-1 md:pl-64">
           {/* Top bar */}
           <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
             <div className="flex-1 px-4 flex justify-between">
@@ -95,6 +94,7 @@ const AdminLayout: React.FC = () => {
                   to="/login"
                   className="ml-4 flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   onClick={() => {
+                    // Versión simplificada para evitar bucles
                     sessionStorage.clear();
                   }}
                 >

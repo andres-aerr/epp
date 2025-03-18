@@ -53,14 +53,14 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="flex">
+      <div className="flex h-full">
         {/* Sidebar */}
-        <div className="hidden md:flex md:w-64 md:flex-col">
-          <div className="flex flex-col flex-grow pt-5 bg-white overflow-y-auto">
-            <div className="flex items-center flex-shrink-0 px-4">
+        <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200">
+          <div className="flex flex-col flex-1">
+            <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-gray-200">
               <h1 className="text-xl font-semibold text-gray-900">EPP Manager</h1>
             </div>
-            <div className="mt-5 flex-grow flex flex-col">
+            <div className="flex-1 flex flex-col overflow-y-auto pt-5">
               <nav className="flex-1 px-2 pb-4 space-y-1">
                 {navigation.map((item) => {
                   const isActive = location.pathname === item.href;
@@ -92,7 +92,7 @@ const MainLayout: React.FC = () => {
         </div>
 
         {/* Main content */}
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col flex-1 md:pl-64">
           {/* Top bar */}
           <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
             <div className="flex-1 px-4 flex justify-between">

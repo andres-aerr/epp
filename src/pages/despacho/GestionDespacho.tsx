@@ -15,11 +15,16 @@ interface Entrega {
     nombre: string;
     cantidad: number;
   }[];
-  estado: 'pendiente_entrega' | 'entregado' | 'confirmado';
+  estado: 'pendiente_recepcion' | 'pendiente_entrega' | 'entregado' | 'cancelado';
   fechaAsignacion: string;
+  fechaRecepcion?: string;
+  fechaEntrega?: string;
   foto?: string;
   ubicacion?: string;
   comentarios?: string;
+  firmaSolicitante?: string;
+  firmaBodega?: string;
+  motivoCancelacion?: string;
 }
 
 // Datos de ejemplo
@@ -33,7 +38,7 @@ const entregasEjemplo: Entrega[] = [
       { nombre: 'Casco de Seguridad', cantidad: 1 },
       { nombre: 'Guantes de Nitrilo', cantidad: 2 },
     ],
-    estado: 'pendiente_entrega',
+    estado: 'pendiente_recepcion',
     fechaAsignacion: '2024-03-17',
   },
   {
@@ -46,15 +51,37 @@ const entregasEjemplo: Entrega[] = [
     ],
     estado: 'pendiente_entrega',
     fechaAsignacion: '2024-03-17',
+    fechaRecepcion: '2024-03-17',
+    firmaBodega: 'BODEGA-2024',
+  },
+  {
+    id: 'ENT-003',
+    solicitudId: 'SOL-003',
+    usuario: 'Juan Pérez',
+    departamento: 'Producción',
+    items: [
+      { nombre: 'Zapatos de Seguridad', cantidad: 1 },
+    ],
+    estado: 'entregado',
+    fechaAsignacion: '2024-03-16',
+    fechaRecepcion: '2024-03-16',
+    fechaEntrega: '2024-03-17',
+    ubicacion: 'Planta Principal - Sector A',
+    firmaBodega: 'BODEGA-2024',
+    firmaSolicitante: 'JUAN-2024',
   },
 ];
 
 const GestionDespacho: React.FC = () => {
   const [entregas, setEntregas] = useState<Entrega[]>(entregasEjemplo);
+  const [vistaActiva, setVistaActiva] = useState<'pendientes' | 'historial'>('pendientes');
   const [entregaSeleccionada, setEntregaSeleccionada] = useState<Entrega | null>(null);
   const [mostrarModalEntrega, setMostrarModalEntrega] = useState(false);
+  const [mostrarModalRecepcion, setMostrarModalRecepcion] = useState(false);
   const [ubicacion, setUbicacion] = useState('');
   const [comentarios, setComentarios] = useState('');
+  const [firma, setFirma] = useState('');
+  const [firmaSolicitante, setFirmaSolicitante] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
 
@@ -63,6 +90,58 @@ const GestionDespacho: React.FC = () => {
     setUbicacion('');
     setComentarios('');
     setFotoPreview(null);
+    setFirma('');
+    setFirmaSolicitante('');
+  };
+
+  const handleConfirmarRecepcion = () => {
+    if (!entregaSeleccionada || !firma) return;
+
+    const fechaActual = new Date().toISOString().split('T')[0];
+
+    setEntregas(entregas.map(ent =>
+      ent.id === entregaSeleccionada.id
+        ? {
+            ...ent,
+            estado: 'pendiente_entrega',
+            fechaRecepcion: fechaActual,
+            firmaBodega: firma,
+            comentarios
+          }
+        : ent
+    ));
+
+    setMostrarModalRecepcion(false);
+    setEntregaSeleccionada(null);
+    setFirma('');
+    setComentarios('');
+  };
+
+  const handleRegistrarEntrega = () => {
+    if (!entregaSeleccionada || !fotoPreview || !ubicacion || !firmaSolicitante) return;
+
+    const fechaActual = new Date().toISOString().split('T')[0];
+
+    setEntregas(entregas.map(ent =>
+      ent.id === entregaSeleccionada.id
+        ? {
+            ...ent,
+            estado: 'entregado',
+            foto: fotoPreview,
+            ubicacion,
+            comentarios,
+            fechaEntrega: fechaActual,
+            firmaSolicitante
+          }
+        : ent
+    ));
+
+    setMostrarModalEntrega(false);
+    setEntregaSeleccionada(null);
+    setFotoPreview(null);
+    setUbicacion('');
+    setComentarios('');
+    setFirmaSolicitante('');
   };
 
   const handleTomarFoto = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,63 +155,141 @@ const GestionDespacho: React.FC = () => {
     }
   };
 
-  const handleRegistrarEntrega = () => {
-    if (!entregaSeleccionada || !fotoPreview || !ubicacion) return;
+  const getEstadoColor = (estado: string) => {
+    switch (estado) {
+      case 'pendiente_recepcion':
+        return 'bg-purple-100 text-purple-800';
+      case 'pendiente_entrega':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'entregado':
+        return 'bg-green-100 text-green-800';
+      case 'cancelado':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
-    // Actualizar el estado de la entrega
-    setEntregas(entregas.map(ent =>
-      ent.id === entregaSeleccionada.id
-        ? {
-            ...ent,
-            estado: 'entregado',
-            foto: fotoPreview,
-            ubicacion,
-            comentarios,
-          }
-        : ent
-    ));
-
-    // Aquí se simularía el envío de la notificación al trabajador
-    console.log('Notificación enviada al trabajador:', entregaSeleccionada.usuario);
-
-    setMostrarModalEntrega(false);
-    setEntregaSeleccionada(null);
-    setFotoPreview(null);
-    setUbicacion('');
-    setComentarios('');
+  const getEstadoTexto = (estado: string) => {
+    switch (estado) {
+      case 'pendiente_recepcion':
+        return 'Pendiente de Recepción';
+      case 'pendiente_entrega':
+        return 'Pendiente de Entrega';
+      case 'entregado':
+        return 'Entregado';
+      case 'cancelado':
+        return 'Cancelado';
+      default:
+        return estado;
+    }
   };
 
   return (
     <div className="flex h-full">
-      {/* Lista de entregas pendientes */}
+      {/* Sidebar con lista de entregas */}
       <div className="w-1/3 border-r border-gray-200 overflow-y-auto">
         <div className="px-4 py-5 sm:px-6">
-          <h2 className="text-lg font-medium text-gray-900">Entregas Pendientes</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Gestión de entregas de EPP asignadas
-          </p>
+          <h2 className="text-lg font-medium text-gray-900">Gestión de Entregas</h2>
+          
+          {/* Tabs para cambiar entre vistas */}
+          <div className="mt-4 border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setVistaActiva('pendientes')}
+                className={`${
+                  vistaActiva === 'pendientes'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+              >
+                Pendientes
+              </button>
+              <button
+                onClick={() => setVistaActiva('historial')}
+                className={`${
+                  vistaActiva === 'historial'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+              >
+                Historial
+              </button>
+            </nav>
+          </div>
         </div>
+
         <ul role="list" className="divide-y divide-gray-200">
-          {entregas.filter(e => e.estado === 'pendiente_entrega').map((entrega) => (
-            <li
-              key={entrega.id}
-              className={`px-4 py-4 hover:bg-gray-50 cursor-pointer ${
-                entregaSeleccionada?.id === entrega.id ? 'bg-blue-50' : ''
-              }`}
-              onClick={() => handleSeleccionarEntrega(entrega)}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{entrega.usuario}</p>
-                  <p className="text-sm text-gray-500">{entrega.departamento}</p>
-                  <p className="text-xs text-gray-400 mt-1">Asignado: {entrega.fechaAsignacion}</p>
-                </div>
-                <div className="text-sm text-gray-500">
-                  {entrega.items.length} items
-                </div>
-              </div>
-            </li>
-          ))}
+          {vistaActiva === 'pendientes' ? (
+            // Lista de entregas pendientes
+            entregas
+              .filter(e => e.estado === 'pendiente_recepcion' || e.estado === 'pendiente_entrega')
+              .map((entrega) => (
+                <li
+                  key={entrega.id}
+                  className={`px-4 py-4 hover:bg-gray-50 cursor-pointer ${
+                    entregaSeleccionada?.id === entrega.id ? 'bg-blue-50' : ''
+                  }`}
+                  onClick={() => handleSeleccionarEntrega(entrega)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{entrega.usuario}</p>
+                      <p className="text-sm text-gray-500">{entrega.departamento}</p>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEstadoColor(entrega.estado)}`}>
+                        {getEstadoTexto(entrega.estado)}
+                      </span>
+                      <p className="text-xs text-gray-400 mt-1">Asignado: {entrega.fechaAsignacion}</p>
+                      {entrega.fechaRecepcion && (
+                        <p className="text-xs text-gray-400">Recibido: {entrega.fechaRecepcion}</p>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))
+          ) : (
+            // Lista del historial de entregas
+            entregas
+              .filter(e => e.estado === 'entregado' || e.estado === 'cancelado')
+              .map((entrega) => (
+                <li
+                  key={entrega.id}
+                  className="px-4 py-4 hover:bg-gray-50"
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-900">{entrega.usuario}</p>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEstadoColor(entrega.estado)}`}>
+                        {getEstadoTexto(entrega.estado)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500">{entrega.departamento}</p>
+                    <div className="mt-2 text-xs text-gray-500">
+                      <p>Asignado: {entrega.fechaAsignacion}</p>
+                      {entrega.fechaRecepcion && (
+                        <p>Recibido: {entrega.fechaRecepcion}</p>
+                      )}
+                      {entrega.fechaEntrega && (
+                        <p>Entregado: {entrega.fechaEntrega}</p>
+                      )}
+                      {entrega.motivoCancelacion && (
+                        <p className="text-red-600">Motivo: {entrega.motivoCancelacion}</p>
+                      )}
+                    </div>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">Items:</p>
+                      <ul className="mt-1 space-y-1">
+                        {entrega.items.map((item, index) => (
+                          <li key={index} className="text-sm text-gray-500">
+                            • {item.nombre} (x{item.cantidad})
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+              ))
+          )}
         </ul>
       </div>
 
@@ -179,14 +336,25 @@ const GestionDespacho: React.FC = () => {
             </div>
 
             <div className="mt-6">
-              <button
-                type="button"
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                onClick={() => setMostrarModalEntrega(true)}
-              >
-                <CheckCircleIcon className="-ml-1 mr-2 h-5 w-5" />
-                Registrar Entrega
-              </button>
+              {entregaSeleccionada?.estado === 'pendiente_recepcion' ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  onClick={() => setMostrarModalRecepcion(true)}
+                >
+                  <CheckCircleIcon className="-ml-1 mr-2 h-5 w-5" />
+                  Confirmar Recepción
+                </button>
+              ) : entregaSeleccionada?.estado === 'pendiente_entrega' ? (
+                <button
+                  type="button"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  onClick={() => setMostrarModalEntrega(true)}
+                >
+                  <CheckCircleIcon className="-ml-1 mr-2 h-5 w-5" />
+                  Registrar Entrega
+                </button>
+              ) : null}
             </div>
           </div>
         ) : (
@@ -199,6 +367,68 @@ const GestionDespacho: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de Confirmación de Recepción */}
+      {mostrarModalRecepcion && (
+        <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+              <div>
+                <div className="mt-3 text-center sm:mt-5">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">
+                    Confirmar Recepción de Bodega
+                  </h3>
+
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700">Firma Digital</label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        placeholder="Ingrese su firma digital..."
+                        value={firma}
+                        onChange={(e) => setFirma(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700">Comentarios</label>
+                    <div className="mt-1">
+                      <textarea
+                        rows={3}
+                        className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        placeholder="Comentarios adicionales..."
+                        value={comentarios}
+                        onChange={(e) => setComentarios(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                <button
+                  type="button"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:col-start-2 sm:text-sm"
+                  onClick={handleConfirmarRecepcion}
+                  disabled={!firma}
+                >
+                  Confirmar Recepción
+                </button>
+                <button
+                  type="button"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:col-start-1 sm:text-sm"
+                  onClick={() => setMostrarModalRecepcion(false)}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de Registro de Entrega */}
       {mostrarModalEntrega && (
@@ -263,6 +493,22 @@ const GestionDespacho: React.FC = () => {
                   </div>
 
                   <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700">Firma Digital del Solicitante</label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        placeholder="Ingrese la firma digital del solicitante..."
+                        value={firmaSolicitante}
+                        onChange={(e) => setFirmaSolicitante(e.target.value)}
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500">
+                      La firma digital del solicitante es requerida para confirmar la recepción del EPP
+                    </p>
+                  </div>
+
+                  <div className="mt-4">
                     <label className="block text-sm font-medium text-gray-700">Comentarios</label>
                     <div className="mt-1">
                       <textarea
@@ -281,7 +527,7 @@ const GestionDespacho: React.FC = () => {
                   type="button"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:col-start-2 sm:text-sm"
                   onClick={handleRegistrarEntrega}
-                  disabled={!fotoPreview || !ubicacion}
+                  disabled={!fotoPreview || !ubicacion || !firmaSolicitante}
                 >
                   Confirmar Entrega
                 </button>
