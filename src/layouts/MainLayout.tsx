@@ -14,7 +14,6 @@ import {
 const userNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Catálogo EPP', href: '/catalogo', icon: ShoppingBagIcon },
-  { name: 'EPPs Recomendados', href: '/epps-recomendados', icon: CheckCircleIcon },
   { name: 'Seguimiento', href: '/solicitudes/seguimiento', icon: ClipboardDocumentListIcon },
   { name: 'Confirmar Recepción', href: '/solicitudes/confirmar', icon: CheckCircleIcon },
   { name: 'Mi Perfil', href: '/perfil', icon: UserIcon },
@@ -44,6 +43,13 @@ const MainLayout: React.FC = () => {
   } else if (location.pathname.startsWith('/despacho')) {
     navigation = despachoNavigation;
   }
+
+  // Función simple para cerrar sesión
+  const handleLogout = () => {
+    sessionStorage.clear();
+    // No vamos a hacer la redirección programáticamente
+    // para evitar ciclos de renderizado
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -99,10 +105,7 @@ const MainLayout: React.FC = () => {
                 <Link
                   to="/login"
                   className="text-gray-600 hover:text-gray-900"
-                  onClick={() => {
-                    // Versión simplificada para evitar bucles
-                    sessionStorage.clear();
-                  }}
+                  onClick={handleLogout}
                 >
                   Cerrar Sesión
                 </Link>

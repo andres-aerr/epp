@@ -4,6 +4,7 @@ import { StarIcon, ShoppingCartIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { catalogoEPP } from '../../data/catalogoEPP';
 import { EPPItem, TallasUsuario } from '../../types/epp';
+import { CART_STORAGE_KEY } from '../../constants/storage';
 
 // Tipos
 interface CarritoItem {
@@ -11,9 +12,6 @@ interface CarritoItem {
   cantidad: number;
   talla: string;
 }
-
-// Clave para el localStorage
-const CART_STORAGE_KEY = 'epp_carrito';
 
 // Perfiles de tallas del usuario (esto vendría desde el contexto o API en producción)
 const tallasUsuario: TallasUsuario = {
@@ -156,16 +154,6 @@ const ProductoDetalle: React.FC = () => {
     }
   }, [producto, id]);
 
-  // Guardar carrito en localStorage cuando cambie
-  useEffect(() => {
-    // Solo guardar en localStorage si ya se ha completado la carga inicial
-    // para evitar sobrescribir con un array vacío al montar el componente
-    if (carritoInicializado) {
-      console.log('ProductoDetalle - guardando carrito en localStorage:', carrito);
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(carrito));
-    }
-  }, [carrito, carritoInicializado]);
-
   // Actualizar estado de "producto agregado" cuando cambia el producto o el carrito
   useEffect(() => {
     if (producto && carritoInicializado) {
@@ -200,6 +188,49 @@ const ProductoDetalle: React.FC = () => {
       }
     }
   }, [producto, carritoInicializado]);
+
+  // Escuchar eventos personalizados de actualización del carrito
+  useEffect(() => {
+    const handleCarritoUpdated = (event: Event) => {
+      const carritoEvent = event as CustomEvent<{carrito: CarritoItem[]}>;
+      console.log('ProductoDetalle - Evento carritoUpdated recibido:', carritoEvent.detail.carrito);
+      
+      if (carritoEvent.detail && Array.isArray(carritoEvent.detail.carrito)) {
+        setCarrito(carritoEvent.detail.carrito);
+        
+        // Verificar si el producto actual está en el carrito actualizado
+        if (producto) {
+          const talla = obtenerTallaAutomatica(producto);
+          const estaEnCarrito = carritoEvent.detail.carrito.some(
+            item => item.id === producto.id && item.talla === talla
+          );
+          setProductoAgregado(estaEnCarrito);
+        }
+      }
+    };
+
+    window.addEventListener('carritoUpdated', handleCarritoUpdated);
+    
+    return () => {
+      window.removeEventListener('carritoUpdated', handleCarritoUpdated);
+    };
+  }, [producto]);
+
+  // Guardar carrito en localStorage cuando cambie
+  useEffect(() => {
+    // Solo guardar en localStorage si ya se ha completado la carga inicial
+    // para evitar sobrescribir con un array vacío al montar el componente
+    if (carritoInicializado) {
+      console.log('ProductoDetalle - guardando carrito en localStorage:', carrito);
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(carrito));
+      
+      // Disparar un evento custom para notificar a otros componentes
+      const event = new CustomEvent('carritoUpdated', {
+        detail: { carrito: carrito }
+      });
+      window.dispatchEvent(event);
+    }
+  }, [carrito, carritoInicializado]);
 
   if (!producto) {
     return (
@@ -278,30 +309,14 @@ const ProductoDetalle: React.FC = () => {
     console.log('ProductoDetalle - handleAgregarAlCarrito - guardando nuevo carrito:', nuevoCarrito);
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nuevoCarrito));
     
-    // Actualizar el estado
-    setCarrito(prevCarrito => {
-      // Usar la versión más actualizada del estado
-      const productosActualesEnEstado = [...prevCarrito];
-      
-      if (itemExistente) {
-        // Actualizar cantidad si ya existe en el estado
-        return productosActualesEnEstado.map(item =>
-          (item.id === producto.id && item.talla === tallaAutomatica)
-            ? { ...item, cantidad: item.cantidad + cantidadSeleccionada }
-            : item
-        );
-      } else {
-        // Agregar nuevo item si no existe en el estado
-        return [
-          ...productosActualesEnEstado,
-          { 
-            id: producto.id, 
-            cantidad: cantidadSeleccionada, 
-            talla: tallaAutomatica
-          }
-        ];
-      }
+    // Disparar un evento custom para notificar a otros componentes
+    const event = new CustomEvent('carritoUpdated', {
+      detail: { carrito: nuevoCarrito }
     });
+    window.dispatchEvent(event);
+    
+    // Actualizar el estado
+    setCarrito(nuevoCarrito);
 
     // Mostrar mensaje de confirmación
     setProductoAgregado(true);
@@ -327,19 +342,26 @@ const ProductoDetalle: React.FC = () => {
       }
     }
     
-    // Filtrar el carrito para eliminar el producto
-    const nuevoCarrito = carritoActual.filter(item => !(item.id === productoId && item.talla === talla));
+    // Filtrar el producto que queremos eliminar
+    const nuevoCarrito = carritoActual.filter(
+      item => !(item.id === productoId && item.talla === talla)
+    );
     
     // Guardar en localStorage
     console.log('ProductoDetalle - handleEliminarDelCarrito - guardando nuevo carrito:', nuevoCarrito);
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nuevoCarrito));
     
-    // Actualizar el estado usando la función de actualización para asegurar el estado más reciente
-    setCarrito(prevCarrito => prevCarrito.filter(item => !(item.id === productoId && item.talla === talla)));
+    // Disparar un evento custom para notificar a otros componentes
+    const event = new CustomEvent('carritoUpdated', {
+      detail: { carrito: nuevoCarrito }
+    });
+    window.dispatchEvent(event);
     
-    if (producto && producto.id === productoId && tallaAutomatica === talla) {
-      setProductoAgregado(false);
-    }
+    // Actualizar el estado
+    setCarrito(nuevoCarrito);
+    
+    // Actualizar el estado de "producto agregado"
+    setProductoAgregado(false);
   };
 
   const handleIrACheckout = () => {
@@ -472,7 +494,9 @@ const ProductoDetalle: React.FC = () => {
               {producto.caracteristicas.map((caracteristica, index) => (
                 <li key={index} className="flex items-center text-gray-600">
                   <span className="h-2 w-2 bg-blue-500 rounded-full mr-3"></span>
-                  {caracteristica}
+                  {typeof caracteristica === 'string' 
+                    ? caracteristica 
+                    : `${caracteristica.nombre}: ${caracteristica.valor}`}
                 </li>
               ))}
             </ul>
@@ -484,10 +508,19 @@ const ProductoDetalle: React.FC = () => {
               {producto.certificaciones.map((certificacion, index) => (
                 <div key={index} className="border rounded-lg p-4">
                   <h3 className="font-medium text-gray-900">{certificacion.nombre}</h3>
-                  <p className="text-sm text-gray-500">Número: {certificacion.numero}</p>
-                  <p className="text-sm text-gray-500">
-                    Válido hasta: {new Date(certificacion.fechaVencimiento).toLocaleDateString()}
+                  <p className="text-sm text-gray-600 mt-1">
+                    Número: {certificacion.numero || 'N/A'}
                   </p>
+                  {certificacion.fechaEmision && (
+                    <p className="text-sm text-gray-600">
+                      Emisión: {new Date(certificacion.fechaEmision).toLocaleDateString()}
+                    </p>
+                  )}
+                  {certificacion.fechaVencimiento && (
+                    <p className="text-sm text-gray-600">
+                      Vencimiento: {new Date(certificacion.fechaVencimiento).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

@@ -25,7 +25,6 @@ import CatalogoAdmin from './pages/admin/CatalogoAdmin';
 import ProductoDetalleAdmin from './pages/admin/ProductoDetalleAdmin';
 import EditarProducto from './pages/admin/EditarProducto';
 import EPPsPorRol from './pages/admin/EPPsPorRol';
-import EPPsRecomendados from './pages/usuario/EPPsRecomendados';
 
 function App() {
   return (
@@ -43,7 +42,6 @@ function App() {
         <Route path="carrito" element={<Navigate to="/epp/carrito" replace />} />
         <Route path="solicitudes/seguimiento" element={<SeguimientoSolicitud />} />
         <Route path="solicitudes/confirmar" element={<ConfirmarRecepcion />} />
-        <Route path="epps-recomendados" element={<EPPsRecomendados />} />
       </Route>
 
       {/* Rutas protegidas para administradores */}

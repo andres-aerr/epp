@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import UserProfile from '../../components/UserProfile';
 
 const Dashboard: React.FC = () => {
-  // En producción, estos datos vendrían de un contexto o estado global
-  const userInfo = {
+  // Usar useRef para que los datos no causen re-renderizados
+  const userInfo = useRef({
     nombre: 'Juan Pérez',
     email: 'usuario@epp.com',
     rol: 'Usuario',
     departamento: 'Operaciones',
     rubro: 'construccion'
-  };
+  }).current;
 
   // Simulación de productos asignados al usuario
-  const productosAsignados = [
+  const productosAsignados = useRef([
     {
       id: '1',
       nombre: 'Casco MSA V-Gard',
@@ -34,10 +34,10 @@ const Dashboard: React.FC = () => {
       fechaVencimiento: '2024-04-01',
       estado: 'por_vencer'
     }
-  ];
+  ]).current;
 
   // Simulación de historial de solicitudes
-  const historialSolicitudes = [
+  const historialSolicitudes = useRef([
     {
       id: 'SOL-001',
       fecha: '2024-03-15',
@@ -56,7 +56,11 @@ const Dashboard: React.FC = () => {
       estado: 'rechazada',
       items: ['Arnés de Seguridad']
     }
-  ];
+  ]).current;
+
+  // Calcular contadores una sola vez para evitar recálculos constantes
+  const eppActivos = productosAsignados.filter(p => p.estado === 'activo').length;
+  const eppPorVencer = productosAsignados.filter(p => p.estado === 'por_vencer').length;
 
   return (
     <div className="p-6">
@@ -77,13 +81,13 @@ const Dashboard: React.FC = () => {
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-500">EPP Activos</span>
               <span className="text-sm font-medium text-gray-900">
-                {productosAsignados.filter(p => p.estado === 'activo').length}
+                {eppActivos}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-500">Por Vencer</span>
               <span className="text-sm font-medium text-gray-900">
-                {productosAsignados.filter(p => p.estado === 'por_vencer').length}
+                {eppPorVencer}
               </span>
             </div>
           </div>
