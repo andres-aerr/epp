@@ -17,6 +17,7 @@ import Inventario from './pages/admin/Inventario';
 import Solicitudes from './pages/admin/Solicitudes';
 import Reportes from './pages/admin/Reportes';
 import ProductoDetalle from './pages/epp/ProductoDetalle';
+import CarritoEPP from './pages/epp/CarritoEPP';
 import PerfilUsuario from './pages/usuario/PerfilUsuario';
 import PerfilAdmin from './pages/admin/PerfilAdmin';
 import CatalogoEPP from './pages/epp/CatalogoEPP';
@@ -36,6 +37,8 @@ function App() {
         <Route path="perfil" element={<PerfilUsuario />} />
         <Route path="catalogo" element={<CatalogoEPP />} />
         <Route path="epp/producto/:id" element={<ProductoDetalle />} />
+        <Route path="epp/carrito" element={<CarritoEPP />} />
+        <Route path="carrito" element={<Navigate to="/epp/carrito" replace />} />
         <Route path="solicitudes/seguimiento" element={<SeguimientoSolicitud />} />
         <Route path="solicitudes/confirmar" element={<ConfirmarRecepcion />} />
       </Route>
